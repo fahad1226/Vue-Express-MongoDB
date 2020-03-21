@@ -59,7 +59,7 @@ app.post('/posts',(req,res) => {
 //get all posts
 
 
-app.get('/get_posts', (req, res) => {
+app.get('/posts', (req, res) => {
   Post.find({}, 'title description', function (error, posts) {
     if (error) { console.error(error); }
     res.send({
@@ -68,6 +68,53 @@ app.get('/get_posts', (req, res) => {
   }).sort({_id:-1})
 })
 
+
+//find a single post by id
+
+app.get('/posts/:id', (req,res) => {
+	Post.findById(req.params.id, 'title description', function(error,post) {
+		if (error) {
+			console.log(error);
+		}
+		res.send(post)
+	})
+})
+
+
+//update that single post
+
+app.put('/posts/:id',(req,res) => {
+	var db = req.db;
+	Post.findById(req.params.id, 'title description', function(error,post) {
+		if (error) {
+			console.log(error);
+		}
+		post.title = req.body.title;
+		post.description = req.body.description;
+		post.save(function(error){
+			console.log(error);
+		})
+		res.send({
+			success: true,
+			message: 'Post Updated Succeeded'
+		})
+	})
+});
+
+//delete post
+
+app.delete('/posts/:id', (req, res) => {
+  var db = req.db;
+  Post.remove({
+    _id: req.params.id
+  }, function(err, post){
+    if (err)
+      res.send(err)
+    res.send({
+      success: true
+    })
+  })
+})
 
 port = process.env.PORT || 8081
 app.listen(port, () => {
